@@ -29,6 +29,8 @@ engine.flow.mass = 173;         % Massflow            [kg/s]
 engine.flow.T    = 218.8;       % Ambient Temperature [K]
 engine.flow.P    = 23842;       % Ambient Pressure    [Pa]
 engine.flow.R    = 287;         % Gas constant
+engine.flow.M    = 0.78;        % Cruise Mach
+engine.flow.h    = 10668;       % Cruise altitude     [m]
 
 engine.air.gamma = 1.4;         % Air
 engine.air.cp    = 1000;        % Air specific heat
@@ -38,8 +40,10 @@ engine.gas.cp    = 1150;        % Exhausted gases specific heat
 
 s_dom = linspace(0,100);
 
+s0 = 10;
+
 % Isobar function
-isobar = @(x) engine.flow.T * exp(x./engine.air.cp);
+isobar = @(x) engine.flow.T * exp((x - s0) ./ engine.air.cp);
 
 figure('Name','T-s diagram','NumberTitle','off')
 hold on
@@ -49,6 +53,9 @@ box on
 % Ambient pressure - P0
 plot(s_dom,isobar(s_dom),':k','LineWidth',1)
 
+
+% Initial point
+scatter(s0,isobar(s0),'r','filled')
 % Axis
 xlabel('$\mathbf{s} \ \left[\frac{J}{Kg \cdot K}\right]$','Interpreter','latex')
 ylabel('$\mathbf{T} \ \left[K\right]$','Interpreter','latex')
