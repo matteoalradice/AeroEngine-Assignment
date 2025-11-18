@@ -15,7 +15,8 @@ function engine = initial_data(engineID)
             
             % -- Intake --
             engine.I.beta    = 1.0;         % Assumed perfect/general (0.99 eta implies PR ~1.0 or specific loss)
-            
+            engine.I.eta     = 0.99;
+
             % -- Fan --
             engine.F.beta    = 1.9;
             engine.F.eta     = 0.85;        % Fan, LPC & HPC Eff = 0.85
@@ -67,7 +68,8 @@ function engine = initial_data(engineID)
             
             % -- Intake --
             engine.I.beta    = 1.0;         % General
-            
+            engine.I.eta     = 0.99;
+
             % -- Fan --
             engine.F.beta    = 1.5;
             engine.F.eta     = 0.92;        % Fan Eff
@@ -119,6 +121,7 @@ function engine = initial_data(engineID)
             
             % -- Intake --
             engine.I.beta    = 0.98;        % Specific Validation Data
+            engine.I.eta     = 0.98;
             
             % -- Fan --
             engine.F.beta    = 1.4;
