@@ -38,25 +38,60 @@ engine.air.cp    = 1000;        % Air specific heat
 engine.gas.gamma = 1.33;        % Exhausted gases
 engine.gas.cp    = 1150;        % Exhausted gases specific heat
 
-s_dom = linspace(0,100);
+% Pressure
+P0 = engine.flow.P;
+P0_tot = 35635.6;
+P2 = 34922.9;
+P21 = 48892;
+P25 = 83116.5;
+P3 = 1038956.3;
 
-s0 = 10;
+% Temperature ideal
+T0 = engine.flow.T;
+T0_tot = 245.4;
+T2 = 245.4;
 
-% Isobar function
-isobar = @(x) engine.flow.T * exp((x - s0) ./ engine.air.cp);
+% Temperature ideal
+T21_id = 270.2;
+T25_id = 317.6;
+T3_id = 661.6;
+
+% Temperature real
+T21_re = 272.9;
+T25_re = 321.5;
+T3_re = 691.2;
+
+% Entropy function
+s = @(P,T) 1000 + engine.air.cp * log(T./engine.flow.T) - engine.flow.R * log(P./engine.flow.P);
+
+P_vect = [P0_tot,P2,P21,P25,P3];
+T_vect_id = [T0_tot,T2,T21_id,T25_id,T3_id];
+T_vect_re = [T0_tot,T2,T21_re,T25_re,T3_re];
+
+s_vect_id = s(P_vect,T_vect_id);
+s_vect_re = s(P_vect,T_vect_re);
 
 figure('Name','T-s diagram','NumberTitle','off')
 hold on
 grid on
 box on
 
-% Ambient pressure - P0
-plot(s_dom,isobar(s_dom),':k','LineWidth',1)
+T_dom = linspace(engine.flow.T,engine.C.Texit);
 
+% References for pressure
+plot(s(P0,T_dom),T_dom,':k','LineWidth',1)
+plot(s(P0_tot,T_dom),T_dom,':k','LineWidth',1)
+plot(s(P2,T_dom),T_dom,':k','LineWidth',1)
+plot(s(P21,T_dom),T_dom,':k','LineWidth',1)
+plot(s(P25,T_dom),T_dom,':k','LineWidth',1)
+plot(s(P3,T_dom),T_dom,':k','LineWidth',1)
 
 % Initial point
-scatter(s0,isobar(s0),'r','filled')
+scatter(s_vect_id,T_vect_id,'r','filled')
+scatter(s_vect_re(3:end),T_vect_re(3:end),'b','filled')
+
 % Axis
+xlim([800,1500])
 xlabel('$\mathbf{s} \ \left[\frac{J}{Kg \cdot K}\right]$','Interpreter','latex')
 ylabel('$\mathbf{T} \ \left[K\right]$','Interpreter','latex')
 title(['T-s diagram of ',engine.name])
