@@ -36,10 +36,18 @@ engine.air.cp    = 1000;        % Air specific heat
 engine.gas.gamma = 1.33;        % Exhausted gases
 engine.gas.cp    = 1150;        % Exhausted gases specific heat
 
+s_dom = linspace(0,100);
+
+% Isobar function
+isobar = @(x) engine.flow.T * exp(x./engine.air.cp);
+
 figure('Name','T-s diagram','NumberTitle','off')
 hold on
 grid on
 box on
+
+% Ambient pressure - P0
+plot(s_dom,isobar(s_dom),':k','LineWidth',1)
 
 % Axis
 xlabel('$\mathbf{s} \ \left[\frac{J}{Kg \cdot K}\right]$','Interpreter','latex')
