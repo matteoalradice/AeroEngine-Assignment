@@ -20,7 +20,7 @@ for i = 1:n_engines
         end
     end
 
-
+    res = calculator(engine,general);
 
 
 
