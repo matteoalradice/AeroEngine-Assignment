@@ -1,36 +1,21 @@
+clear all
+close all
+clc
 
-validate = true;
+engine_case = {'Leap1A'}; %{'JT8D', 'Leap1B', 'Leap1A'}; 
 
-[JT8D, Leap1B, general, Leap1A, validation] = initial_data;
-
-if validate == true
-    engine = Leap1A;
-    general = validation;
-    n_engines = 1;
-else
-    n_engines = 2;
-end
-
+n_engines = length(engine_case);
 for i = 1:n_engines
-    if validate == false
-        if i == 1
-            engine = JT8D;
-        else
-            engine = Leap1B;
-        end
+    % Get engine data
+    engine = initial_data(engine_case{i});
+    
+    % Calculate results
+    result = calculator(engine);
+    
+    % Store results
+    if i == 1
+        all_res = result;
+    else
+        all_res(i) = result;
     end
-
-    res = calculator(engine,general);
-
-
-
-
-
-
-
-
-
-
-
-
 end

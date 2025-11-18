@@ -1,83 +1,167 @@
-function [JT8D, Leap1B, general, Leap1A, validation] = initial_data()
-% Engine 1: JT 8D Data Structure 
-JT8D = struct();
-JT8D.Name = 'JT 8D';
-JT8D.BPR = 1.62;
-JT8D.CoreMassFlowRate = 90.2;   % corrected kg/s
-JT8D.PR_fan = 1.9;
-JT8D.PR_HPC = 3.5;
-JT8D.T_turbine_inlet = 1150;    % Kelvin
-JT8D.PR_total = 17;
-JT8D.eta_fan_lpc_hpc = 0.85;    % Isentropic Efficiency
-JT8D.eta_lpt_hpt = 0.88;        % Isentropic Efficiency
-JT8D.eta_cc = 0.985;
-JT8D.Stages = '2+6+7 / 1+3';    % Compressor / Turbine
-JT8D.D = 1.25;                  % meters
+function engine = initial_data(engineID)
+% INITIAL_DATA Returns the engine data structure for a specific engine ID.
 
-% Engine 2: Leap-1B Data Structure
-Leap1B = struct();
-Leap1B.Name = 'Leap-1B';
-Leap1B.BPR = 8.6;
-Leap1B.CoreMassFlowRate = 50;       % corrected kg/s
-Leap1B.PR_fan = 1.5;
-Leap1B.PR_HPC = 10;
-Leap1B.T_turbine_inlet = 1450;     % Kelvin
-Leap1B.PR_total = 40;
-Leap1B.eta_fan_lpc_hpc = 0.92;  % Isentropic Efficiency
-Leap1B.eta_lpt_hpt = 0.92;     % Isentropic Efficiency
-Leap1B.eta_cc = 0.995;
-Leap1B.Stages = '1+3+10 / 2+5';     % Compressor / Turbine
-Leap1B.D = 1.75;             % meters
+    % Initialize empty struct
+    engine = struct();
 
-% general Characteristics Structure
-general = struct();
-general.eta_intake = 0.99;       % Isentropic Efficiency
-general.PR_inlet = NaN;          % Not specified for general (Validation uses 0.98)
-general.eta_mech = 0.99;
-general.PR_comb = 0.96;          % Combustor Pressure Ratio
-general.eta_nozzle = 0.99;
-general.T_amb = 220;             % Kelvin
-general.P_amb = 23842;           % Pa
-general.h = 10668;               % meters
-general.M = 0.78;
-general.R = 287;                 % J/kg K
-general.LHVf = 43e6;             % J/kg
-general.Cp_Air = 1000;
-general.Kappa_Air = 1.4;
-general.Cp_Gas = 1150;
-general.Kappa_Gas = 1.33;
+    % Normalize input to lowercase for case-insensitive comparison
+    switch lower(engineID)
+        
+        % =================================================================
+        % CASE 1: JT 8D
+        % =================================================================
+        case {'jt8d', 'jt 8d'}
+            engine.name      = 'JT 8D';
+            
+            % -- Intake --
+            engine.I.beta    = 1.0;         % Assumed perfect/general (0.99 eta implies PR ~1.0 or specific loss)
+            
+            % -- Fan --
+            engine.F.beta    = 1.9;
+            engine.F.eta     = 0.85;        % Fan, LPC & HPC Eff = 0.85
+            
+            % -- Low Pressure Compressor --
+            % Calculated: OPR (17) / (Fan_PR * HPC_PR) = 17 / (1.9 * 3.5)
+            engine.LPC.beta  = 2.5564;      
+            engine.LPC.eta   = 0.85;
+            
+            % -- High Pressure Compressor --
+            engine.HPC.beta  = 3.5;
+            engine.HPC.eta   = 0.85;
+            
+            % -- Combustor --
+            engine.C.beta    = 0.96;        % From General Characteristics
+            engine.C.eta     = 0.985;
+            engine.C.Qfuel   = 43e6;        % [J/kg]
+            engine.C.Texit   = 1150;        % Turbine Inlet Temp [K]
+            
+            % -- Turbines (Added for completeness based on naming convention) --
+            engine.HPT.eta   = 0.88;
+            engine.LPT.eta   = 0.88;
+            
+            % -- Nozzle & Mechanical --
+            engine.N.eta     = 0.99;        % From General Characteristics
+            engine.eta       = 0.99;        % Mechanical efficiency
+            
+            % -- Flow & Environment --
+            engine.flow.BPR  = 1.62;
+            % Massflow: Core is 90.2. Total = Core * (1 + BPR)
+            engine.flow.mass = 90.2 * (1 + 1.62); 
+            engine.flow.T    = 220;         % Ambient Temp [K]
+            engine.flow.P    = 23842;       % Ambient Pressure [Pa]
+            engine.flow.R    = 287;         
+            engine.flow.M    = 0.78;
+            engine.flow.h    = 10668;
+            
+            % -- Gas Properties --
+            engine.air.gamma = 1.4;
+            engine.air.cp    = 1000;
+            engine.gas.gamma = 1.33;
+            engine.gas.cp    = 1150;
 
+        % =================================================================
+        % CASE 2: LEAP-1B
+        % =================================================================
+        case {'leap-1b', 'leap1b'}
+            engine.name      = 'Leap-1B';
+            
+            % -- Intake --
+            engine.I.beta    = 1.0;         % General
+            
+            % -- Fan --
+            engine.F.beta    = 1.5;
+            engine.F.eta     = 0.92;        % Fan Eff
+            
+            % -- Low Pressure Compressor --
+            % Calculated: OPR (40) / (Fan_PR * HPC_PR) = 40 / (1.5 * 10)
+            engine.LPC.beta  = 2.6667;
+            engine.LPC.eta   = 0.92;
+            
+            % -- High Pressure Compressor --
+            engine.HPC.beta  = 10;
+            engine.HPC.eta   = 0.92;
+            
+            % -- Combustor --
+            engine.C.beta    = 0.96;
+            engine.C.eta     = 0.995;
+            engine.C.Qfuel   = 43e6;
+            engine.C.Texit   = 1450;
+            
+            % -- Turbines --
+            engine.HPT.eta   = 0.92;
+            engine.LPT.eta   = 0.92;
+            
+            % -- Nozzle & Mechanical --
+            engine.N.eta     = 0.99;
+            engine.eta       = 0.99;
+            
+            % -- Flow & Environment --
+            engine.flow.BPR  = 8.6;
+            % Massflow: Core is 50. Total = Core * (1 + BPR)
+            engine.flow.mass = 50 * (1 + 8.6);
+            engine.flow.T    = 220;
+            engine.flow.P    = 23842;
+            engine.flow.R    = 287;
+            engine.flow.M    = 0.78;
+            engine.flow.h    = 10668;
 
-% VALIDATION
-Leap1A = struct();
-Leap1A.Name = 'Leap-1A';
-Leap1A.BPR = 12;
-Leap1A.CoreMassFlowRate = 173;      % NOTE: "Engine air mass flow rate" (Total), not Core
-Leap1A.PR_fan = 1.4;
-Leap1A.PR_HPC = 12.5;               % Note: LPC Pressure Ratio is 1.7
-Leap1A.T_turbine_inlet = 1400;      % Kelvin (Tt4)
-Leap1A.PR_total = 29.75;            % Calculated: 1.4 (Fan) * 1.7 (LPC) * 12.5 (HPC)
-Leap1A.eta_fan_lpc_hpc = 0.92;      % LPC & HPC Isentropic Eff. (Fan Eff is 0.90)
-Leap1A.eta_lpt_hpt = 0.90;          % Isentropic Efficiency
-Leap1A.eta_cc = 0.995;
-Leap1A.Stages = '';                 % Not specified in provided data
-Leap1A.D = 0;                       % Not specified in provided data
+            % -- Gas Properties --
+            engine.air.gamma = 1.4;
+            engine.air.cp    = 1000;
+            engine.gas.gamma = 1.33;
+            engine.gas.cp    = 1150;
 
-validation = struct();
-validation.eta_intake = NaN;     % Not specified (general uses 0.99)
-validation.PR_inlet = 0.98;      % Inlet Pressure Ratio
-validation.eta_mech = 0.99;
-validation.PR_comb = 0.96;
-validation.eta_nozzle = 0.98;
-validation.T_amb = 218.8;        % Kelvin (Ta)
-validation.P_amb = 23842;        % Pa (pa)
-validation.h = 10668;            % meters
-validation.M = 0.78;
-validation.R = 287;              % J/kg K
-validation.LHVf = 43e6;          % J/kg
-validation.Cp_Air = 1000;        % Standardized from Cp_a
-validation.Kappa_Air = 1.4;
-validation.Cp_Gas = 1150;        % Standardized from Cp_g
-validation.Kappa_Gas = 1.33;
+        % =================================================================
+        % CASE 3: LEAP-1A
+        % =================================================================
+        case {'leap-1a', 'leap1a'}
+            engine.name      = 'LEAP-1A';
+            
+            % -- Intake --
+            engine.I.beta    = 0.98;        % Specific Validation Data
+            
+            % -- Fan --
+            engine.F.beta    = 1.4;
+            engine.F.eta     = 0.90;        % Specific Fan Eff
+            
+            % -- Low Pressure Compressor --
+            engine.LPC.beta  = 1.7;         % Explicitly given
+            engine.LPC.eta   = 0.92;        % Combined LPC/HPC Eff
+            
+            % -- High Pressure Compressor --
+            engine.HPC.beta  = 12.5;
+            engine.HPC.eta   = 0.92;
+            
+            % -- Combustor --
+            engine.C.beta    = 0.96;
+            engine.C.eta     = 0.995;
+            engine.C.Qfuel   = 43e6;
+            engine.C.Texit   = 1400;
+            
+            % -- Turbines --
+            engine.HPT.eta   = 0.90;
+            engine.LPT.eta   = 0.90;
+            
+            % -- Nozzle & Mechanical --
+            engine.N.eta     = 0.98;        % Specific Validation Data
+            engine.eta       = 0.99;
+            
+            % -- Flow & Environment --
+            engine.flow.BPR  = 12;
+            engine.flow.mass = 173;         % Given as Total flow
+            engine.flow.T    = 218.8;       % Specific Validation Data
+            engine.flow.P    = 23842;       % Specific Validation Data
+            engine.flow.R    = 287;
+            engine.flow.M    = 0.78;
+            engine.flow.h    = 10668;
 
+            % -- Gas Properties --
+            engine.air.gamma = 1.4;
+            engine.air.cp    = 1000;
+            engine.gas.gamma = 1.33;
+            engine.gas.cp    = 1150;
+            
+        otherwise
+            error('Unknown Engine ID. Please use ''JT8D'', ''Leap-1B'', or ''Leap-1A''.');
+    end
 end

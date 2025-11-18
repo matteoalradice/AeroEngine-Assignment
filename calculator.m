@@ -1,6 +1,6 @@
-function [results] = calculator(engine,general)
+function [results] = calculator(engine)
 
-
+results = struct();
 
 
 
