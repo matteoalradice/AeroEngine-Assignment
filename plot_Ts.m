@@ -45,53 +45,73 @@ P2 = 34922.9;
 P21 = 48892;
 P25 = 83116.5;
 P3 = 1038956.3;
-
-% Temperature ideal
-T0 = engine.flow.T;
-T0_tot = 245.4;
-T2 = 245.4;
+P4 = 997398.0;
+P45 = 307949.5;
+P5 = 50961.8;
+P8 = 27157.3;
+P18 = 25464.6;
 
 % Temperature ideal
 T21_id = 270.2;
 T25_id = 317.6;
 T3_id = 661.6;
+T45_id = 1045.9;
+T5_id = 692;
 
 % Temperature real
+T0 = engine.flow.T;
+T0_tot = 245.4;
+T2 = 245.4;
 T21_re = 272.9;
 T25_re = 321.5;
 T3_re = 691.2;
+T4_re = 1400;
+T45_re = 1081.3;
+T5_re = 731;
+T8_re = 627.5;
+T18_re = 227.4;
 
 % Entropy function
-s = @(P,T) 1000 + engine.air.cp * log(T./engine.flow.T) - engine.flow.R * log(P./engine.flow.P);
+s0 = 1000;
+s = @(P,T) s0 + engine.air.cp * log(T./engine.flow.T) - engine.flow.R * log(P./engine.flow.P);
 
-P_vect = [P0_tot,P2,P21,P25,P3];
-T_vect_id = [T0_tot,T2,T21_id,T25_id,T3_id];
-T_vect_re = [T0_tot,T2,T21_re,T25_re,T3_re];
+% State variable vectors
+P_vect_id = [NaN,NaN,P21,P25,P3,NaN,P45,P5,NaN,NaN];
+P_vect_re = [P0_tot,P2,P21,P25,P3,P4,P45,P5,P8,P18];
 
-s_vect_id = s(P_vect,T_vect_id);
-s_vect_re = s(P_vect,T_vect_re);
+T_vect_id = [NaN,NaN,T21_id,T25_id,T3_id,NaN,T45_id,T5_id,NaN,NaN];
+T_vect_re = [T0_tot,T2,T21_re,T25_re,T3_re,T4_re,T45_re,T5_re,T8_re,T18_re];
+
+s_vect_id = s(P_vect_id,T_vect_id);
+s_vect_re = s(P_vect_re,T_vect_re);
+
+% Domain vector for plots
+x = linspace(0,1,100);
+T_dom = (T_vect_id - 20)' * (1 - x) + (T_vect_re + 20)' * x;
 
 figure('Name','T-s diagram','NumberTitle','off')
 hold on
 grid on
 box on
 
-T_dom = linspace(engine.flow.T,engine.C.Texit);
-
 % References for pressure
-plot(s(P0,T_dom),T_dom,':k','LineWidth',1)
-plot(s(P0_tot,T_dom),T_dom,':k','LineWidth',1)
-plot(s(P2,T_dom),T_dom,':k','LineWidth',1)
-plot(s(P21,T_dom),T_dom,':k','LineWidth',1)
-plot(s(P25,T_dom),T_dom,':k','LineWidth',1)
-plot(s(P3,T_dom),T_dom,':k','LineWidth',1)
+plot(s(P0,linspace(engine.flow.T-100,engine.C.Texit)),linspace(engine.flow.T-100,engine.C.Texit),'--r','LineWidth',1)
 
-% Initial point
+for j = 1:length(T_dom(:,1))
+    plot(s(P_vect_id(j),T_dom(j,:)),T_dom(j,:),':k','LineWidth',1)
+end
+
+% Intermediate points
 scatter(s_vect_id,T_vect_id,'r','filled')
-scatter(s_vect_re(3:end),T_vect_re(3:end),'b','filled')
+
+% Real thermodynamic transformations
+plot(s_vect_re(1:end-2),T_vect_re(1:end-2),'ok-.','MarkerFaceColor','b','MarkerEdgeColor','b')
+plot(s_vect_re([2,end]),T_vect_re([2,end]),'ok--','MarkerFaceColor','b','MarkerEdgeColor','b')
+plot(s_vect_re([8,end-1]),T_vect_re([8,end-1]),'ok--','MarkerFaceColor','b','MarkerEdgeColor','b')
 
 % Axis
-xlim([800,1500])
+xlim([s0 - 200,2 * s0 + 200])
+ylim([0,engine.C.Texit + 100])
 xlabel('$\mathbf{s} \ \left[\frac{J}{Kg \cdot K}\right]$','Interpreter','latex')
 ylabel('$\mathbf{T} \ \left[K\right]$','Interpreter','latex')
 title(['T-s diagram of ',engine.name])
