@@ -91,10 +91,43 @@ if P.Pt7 > P_tot
     fprintf('T.T8:       %.2f K\n', T.T8);
     fprintf('P.P8:       %.2f Pa\n', P.P8);
     
-    V8 = sqrt(engine.gas.gamma*engine.flow.R*engine.flow.T);
+    V8 = sqrt(engine.gas.gamma*engine.flow.R*T.T8);
+    fprintf('V8:       %.2f m/s\n', V8);
     rho_8 = P.P8/(engine.flow.R*T.T8);
+    fprintf('rho_8:       %.2f kg/m^3\n', rho_8);
+    A_core = (m_core + m_f)/(rho_8 * V8);
+    fprintf('A_core:       %.2f m^2\n', A_core);
 else
 end
+
+% bypass
+
+if P.Pt21 > P_tot
+    % bypass nozzle is choked
+    T.T18 = T.Tt21*1/(1+(engine.air.gamma-1)/2);
+    P.P18 = P.Pt21*1/(1-1/engine.N.eta*((engine.air.gamma-1)/(engine.air.gamma+1)))^(-engine.air.gamma/(engine.air.gamma-1));
+    fprintf('T.T18:       %.2f K\n', T.T18);
+    fprintf('P.P18:       %.2f Pa\n', P.P18);
+    
+    V18 = sqrt(engine.air.gamma*engine.flow.R*T.T18);
+    fprintf('V_18:       %.2f m/s\n', V18);
+    rho_18 = P.P18/(engine.flow.R*T.T18);
+    fprintf('rho_18:       %.2f kg/m^3\n', rho_18);
+    A_bypass = (m_bypass)/(rho_18 * V18);
+    fprintf('A_bypass:       %.2f m^2\n', A_bypass);
+else
+end
+
+v_inf = engine.flow.M*sqrt(engine.air.gamma*engine.flow.R*engine.flow.T);
+
+F_core = (m_core + m_f)*(V8-v_inf) + A_core*(P.P8-P.P1);
+
+F_bypass = m_bypass*(V18 - v_inf) + A_bypas*(P.P18-P.P1);
+
+F_total = F_core + F_bypass;
+
+TSFC = m_f / F_total;
+
 
 
 
