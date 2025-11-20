@@ -167,11 +167,11 @@ TSFC = m_f / F_total;
 % Output struct
 results = struct();
 
-results.P_re = [Pt1,Pt2,Pt21,Pt25,Pt3,Pt4,Pt45,Pt5,P8,P18];
-results.P_id = [NaN,NaN,Pt21,Pt25,Pt3,NaN,Pt45,Pt5,NaN,NaN];
+results.P_re = [Pt1,Pt2,P18,Pt21,Pt25,Pt3,Pt4,Pt45,Pt5,P8];
+results.P_id = [NaN,NaN,NaN,Pt21,Pt25,Pt3,NaN,Pt45,Pt5,NaN];
 
-results.T_re = [Tt1,Tt2,Tt21,Tt25,Tt3,Tt4,Tt45,Tt5,T8,T18];
-results.T_id = [NaN,NaN,Tt21_id,Tt25_id,Tt3_id,NaN,Tt45_id,Tt5_id,NaN,NaN];
+results.T_re = [Tt1,Tt2,T18,Tt21,Tt25,Tt3,Tt4,Tt45,Tt5,T8];
+results.T_id = [NaN,NaN,NaN,Tt21_id,Tt25_id,Tt3_id,NaN,Tt45_id,Tt5_id,NaN];
 
 results.T    = F_total;
 results.TSFC = TSFC;
