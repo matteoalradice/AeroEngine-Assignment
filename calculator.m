@@ -26,7 +26,7 @@ Tt1 = T_amb * (1 + (gamma_a - 1)/2 * M^2);
 Pt1 = P_amb * (1 + (gamma_a - 1)/2 * M^2)^(gamma_a / (gamma_a-1));
 
 fprintf(['Ambient pressure    (Total): \t %.2f Pa\n',...
-         'Ambient temperature (Total): \t %.2f K\n\n'], P_amb,T_amb);
+         'Ambient temperature (Total): \t %.2f K\n\n'], Pt1,Tt1);
 
 % % % % % % % % % % % % % % % Inlet stage % % % % % % % % % % % % % % % % %
 
