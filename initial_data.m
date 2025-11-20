@@ -59,6 +59,7 @@ function engine = initial_data(engineID)
             engine.air.cp    = 1000;
             engine.gas.gamma = 1.33;
             engine.gas.cp    = 1150;
+            engine.gas.LHV   = 43*10^6;
 
         % =================================================================
         % CASE 2: LEAP-1B
@@ -112,6 +113,7 @@ function engine = initial_data(engineID)
             engine.air.cp    = 1000;
             engine.gas.gamma = 1.33;
             engine.gas.cp    = 1150;
+            engine.gas.LHV   = 43*10^6;
 
         % =================================================================
         % CASE 3: LEAP-1A
@@ -163,6 +165,7 @@ function engine = initial_data(engineID)
             engine.air.cp    = 1000;
             engine.gas.gamma = 1.33;
             engine.gas.cp    = 1150;
+            engine.gas.LHV   = 43*10^6;
             
         otherwise
             error('Unknown Engine ID. Please use ''JT8D'', ''Leap-1B'', or ''Leap-1A''.');
