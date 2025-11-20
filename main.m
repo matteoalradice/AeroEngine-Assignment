@@ -10,12 +10,15 @@ for i = 1:n_engines
     engine = initial_data(engine_case{i});
     
     % Calculate results
-    result = calculator(engine);
+    results = calculator(engine);
     
     % Store results
     if i == 1
-        all_res = result;
+        all_res = results;
     else
-        all_res(i) = result;
+        all_res(i) = results;
     end
+
+    % Plot
+    plot_Ts(results,engine)
 end
