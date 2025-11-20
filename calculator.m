@@ -1,99 +1,124 @@
 function [results] = calculator(engine)
 
+% Mass flow
 m_core = engine.flow.mass/(engine.flow.BPR + 1);
 m_bypass = m_core*engine.flow.BPR;
+
 fprintf('m_core:     %.2f kg/s\n', m_core);
 fprintf('m_bypass:     %.2f kg/s\n', m_bypass);
 
-T = struct();
-P = struct();
-W = struct();
+% % % % % % % % % % % % % % Ambient stage % % % % % % % % % % % % % % % % %
+% Static quantities
+T_amb = engine.flow.T;
+fprintf('T_amb   (Static Temp):     %.2f K\n', T_amb);
 
-T.T1 = engine.flow.T;
-fprintf('T.T1   (Static Temp):     %.2f K\n', T.T1);
+P_amb = engine.flow.P;
+fprintf('P_amb   (Static Press):    %.2f Pa\n', P_amb);
 
-P.P1 = engine.flow.P;
-fprintf('P.P1   (Static Press):    %.2f Pa\n', P.P1);
+% Total quantities
+Tt1 = T_amb * (1 + (engine.air.gamma-1)/2 * engine.flow.M^2);
+fprintf('Tt1  (Total Temp 1):    %.2f K\n', Tt1);
 
-T.Tt1 = T.T1 * (1 + (engine.air.gamma-1)/2 * engine.flow.M^2);
-fprintf('T.Tt1  (Total Temp 1):    %.2f K\n', T.Tt1);
+Pt1 = P_amb * (Tt1/T_amb)^(engine.air.gamma/(engine.air.gamma-1));
+fprintf('Pt1  (Total Press 1):   %.2f Pa\n', Pt1);
 
-P.Pt1 = P.P1 * (T.Tt1/T.T1)^(engine.air.gamma/(engine.air.gamma-1));
-fprintf('P.Pt1  (Total Press 1):   %.2f Pa\n', P.Pt1);
+% % % % % % % % % % % % % % % Inlet stage % % % % % % % % % % % % % % % % %
+Tt2 = Tt1;
+fprintf('Tt2  (Total Temp 2):    %.2f K\n', Tt2);
 
-T.Tt2 = T.Tt1;
-fprintf('T.Tt2  (Total Temp 2):    %.2f K\n', T.Tt2);
+Pt2 = engine.I.eta * Pt1;
+fprintf('Pt2  (Total Press 2):   %.2f Pa\n', Pt2);
 
-P.Pt2 = engine.I.eta * P.Pt1;
-fprintf('P.Pt2  (Total Press 2):   %.2f Pa\n', P.Pt2);
+% % % % % % % % % % % % % % % Fan stage % % % % % % % % % % % % % % % % % %
+% Pt21 = engine.F.beta * Pt2; 
+% fprintf('Pt21 (Fan Exit Press):  %.2f Pa\n', Pt21);
+% 
+% Tt21 = Tt2 * (1 + 1/engine.F.eta * ((Pt21/Pt2)^((engine.air.gamma-1)/engine.air.gamma) - 1));
+% fprintf('Tt21 (Fan Exit Temp):   %.2f K\n', Tt21);
 
-P.Pt21 = engine.air.gamma * P.Pt2; 
-fprintf('P.Pt21 (Fan Exit Press):  %.2f Pa\n', P.Pt21);
+[Pt21,Tt21,Tt21_id] = compressor(Pt2,Tt2,engine.air.gamma,engine.F.beta,engine.F.eta);
 
-T.Tt21 = T.Tt2 * (1 + 1/engine.F.eta * ((P.Pt21/P.Pt2)^((engine.air.gamma-1)/engine.air.gamma) - 1));
-fprintf('T.Tt21 (Fan Exit Temp):   %.2f K\n', T.Tt21);
+W_F = engine.flow.mass * engine.air.cp * (Tt21 - Tt2);
+fprintf('Wfan (Fan Work):        %.2f Watts\n', W_F);
 
-P.Pt13 = P.Pt21;
-fprintf('P.Pt13 (Bypass Press):    %.2f Pa\n', P.Pt13);
+% % % % % % % % % % % % % % Bypass stage % % % % % % % % % % % % % % % % %
+Pt13 = Pt21;
+fprintf('Pt13 (Bypass Press):    %.2f Pa\n', Pt13);
 
-T.Tt13 = T.Tt21;
-fprintf('T.Tt13 (Bypass Temp):     %.2f K\n', T.Tt13);
+Tt13 = Tt21;
+fprintf('Tt13 (Bypass Temp):     %.2f K\n', Tt13);
 
-W.W_F = engine.flow.mass * engine.air.cp * (T.Tt21 - T.Tt2);
-fprintf('W.Wfan (Fan Work):        %.2f Watts\n', W.W_F);
+% % % % % % % % % % % % % % % LPC stage % % % % % % % % % % % % % % % % % %
+% Pt25 = engine.LPC.beta*Pt21;
+% Tt25 = Tt21 * (1 + 1/engine.LPC.eta * ((Pt25/Pt21)^((engine.air.gamma-1)/engine.air.gamma) - 1));
 
-P.Pt25 = engine.LPC.beta*P.Pt21;
-T.Tt25 = T.Tt21 * (1 + 1/engine.LPC.eta * ((P.Pt25/P.Pt21)^((engine.air.gamma-1)/engine.air.gamma) - 1));
+[Pt25,Tt25,Tt25_id] = compressor(Pt21,Tt21,engine.air.gamma,engine.LPC.beta,engine.LPC.eta);
 
 m_25 = m_core;
 
-W.W_LPC = m_25*engine.air.cp*(T.Tt25 - T.Tt21);
+W_LPC = m_25*engine.air.cp*(Tt25 - Tt21);
 
-P.Pt3 = engine.HPC.beta*P.Pt25;
-T.Tt3 = T.Tt25 * (1 + 1/engine.HPC.eta * ((P.Pt3/P.Pt25)^((engine.air.gamma-1)/engine.air.gamma) - 1));
-fprintf('T.Tt3  (Total Temp 3):    %.2f K\n', T.Tt3);
+% % % % % % % % % % % % % % % HPC stage % % % % % % % % % % % % % % % % % %
+% Pt3 = engine.HPC.beta*Pt25;
+% Tt3 = Tt25 * (1 + 1/engine.HPC.eta * ((P.Pt3/Pt25)^((engine.air.gamma-1)/engine.air.gamma) - 1));
+[Pt3,Tt3,Tt3_id] = compressor(Pt25,Tt25,engine.air.gamma,engine.HPC.beta,engine.HPC.eta);
+
+fprintf('Tt3  (Total Temp 3):    %.2f K\n', Tt3);
 m_3 = m_25;
-W.W_HPC = m_3 * engine.air.cp * (T.Tt3 - T.Tt25);
-fprintf('W.W_HPC (HPC Work):       %.2f Watts\n', W.W_HPC);
+W_HPC = m_3 * engine.air.cp * (Tt3 - Tt25);
+fprintf('W_HPC (HPC Work):       %.2f Watts\n', W_HPC);
 
-T.Tt4 = engine.C.Texit;
-m_f = (m_3 * engine.gas.cp * (T.Tt4 - T.Tt3))/(engine.C.eta * engine.gas.LHV);
+% % % % % % % % % % % % % % Combustor stage % % % % % % % % % % % % % % % %
+Pt4 = Pt3 * engine.C.beta;
+Tt4 = engine.C.Texit;
+m_f = (m_3 * engine.gas.cp * (Tt4 - Tt3))/(engine.C.eta * engine.gas.LHV);
 
 m_4 = m_3 + m_f;
 
-P.Pt4 = P.Pt3 * engine.C.beta;
-T.Tt45 = T.Tt4 - W.W_HPC/(engine.eta*m_4*engine.gas.cp);
-T.Tt45_id = T.Tt4 - (T.Tt4 - T.Tt45)/engine.HPT.eta;
-P.Pt45 = P.Pt4 * (T.Tt4/T.Tt45_id)^(engine.gas.gamma/(1-engine.gas.gamma));
 
-fprintf('T.Tt45:       %.2f K\n', T.Tt45);
+% % % % % % % % % % % % % % % HPT stage % % % % % % % % % % % % % % % % % %
+Tt45 = Tt4 - W_HPC/(engine.eta*m_4*engine.gas.cp);
+
+[Pt45,Tt45_id] = turbine(Pt4,Tt4,Tt45,engine.gas.gamma,engine.HPT.eta);
+
+% Tt45_id = Tt4 - (Tt4 - Tt45)/engine.HPT.eta;
+% Pt45 = Pt4 * (Tt4/Tt45_id)^(engine.gas.gamma/(1-engine.gas.gamma));
+
+fprintf('Tt45:       %.2f K\n', Tt45);
 
 m_45 = m_4;
 
+% % % % % % % % % % % % % % % LPT stage % % % % % % % % % % % % % % % % % %
+Tt5 = Tt45 - (W_LPC + W_F)/(engine.LPT.eta * m_45 * engine.gas.cp);
+fprintf('Tt5:       %.2f K\n', Tt5);
 
-T.Tt5 = T.Tt45 - (W.W_LPC + W.W_F)/(engine.eta * m_45 * engine.gas.cp);
-fprintf('T.Tt5:       %.2f K\n', T.Tt5);
-T.Tt5_id = T.Tt45 - (T.Tt45 - T.Tt5)/engine.LPT.eta;
-fprintf('T.Tt5_id:       %.2f K\n', T.Tt5_id);
-P.Pt5 = P.Pt45 * (T.Tt45/T.Tt5_id)^(engine.gas.gamma/(1-engine.gas.gamma));
-fprintf('P.Pt5:       %.2f Pa\n', P.Pt5);
+[Pt5,Tt5_id] = turbine(Pt45,Tt45,Tt5,engine.gas.gamma,engine.LPT.eta);
 
+% Tt5_id = Tt45 - (Tt45 - Tt5)/engine.LPT.eta;
+% fprintf('Tt5_id:       %.2f K\n', Tt5_id);
+% Pt5 = Pt45 * (Tt45/Tt5_id)^(engine.gas.gamma/(1-engine.gas.gamma));
+fprintf('Pt5:       %.2f Pa\n', Pt5);
+
+% % % % % % % % % % % % % % Nozzle stage % % % % % % % % % % % % % % % % %
+
+% Critical total pressure
 P_tot = engine.flow.P * (1 + (engine.gas.gamma - 1)/2)^(engine.gas.gamma/(engine.gas.gamma - 1));
-fprintf('P.P tot:       %.2f Pa\n', P_tot);
+fprintf('P tot:       %.2f Pa\n', P_tot);
 
-P.Pt7 = P.Pt5;
-T.Tt7 = T.Tt5;
+Pt7 = Pt5;
+Tt7 = Tt5;
 
-if P.Pt7 > P_tot
+
+if Pt7 > P_tot
     % nozzle is choked
-    T.T8 = T.Tt7*1/(1+(engine.gas.gamma-1)/2);
-    P.P8 = P.Pt7*1/(1-1/engine.N.eta*((engine.gas.gamma-1)/(engine.gas.gamma+1)))^(-engine.gas.gamma/(engine.gas.gamma-1));
-    fprintf('T.T8:       %.2f K\n', T.T8);
-    fprintf('P.P8:       %.2f Pa\n', P.P8);
+    T8 = Tt7*1/(1+(engine.gas.gamma-1)/2);
+    P8 = Pt7*1/(1-1/engine.N.eta*((engine.gas.gamma-1)/(engine.gas.gamma+1)))^(-engine.gas.gamma/(engine.gas.gamma-1));
+    fprintf('T8:       %.2f K\n', T8);
+    fprintf('P8:       %.2f Pa\n', P8);
     
-    V8 = sqrt(engine.gas.gamma*engine.flow.R*T.T8);
+    V8 = sqrt(engine.gas.gamma*engine.flow.R*T8);
     fprintf('V8:       %.2f m/s\n', V8);
-    rho_8 = P.P8/(engine.flow.R*T.T8);
+    rho_8 = P.P8/(engine.flow.R*T8);
     fprintf('rho_8:       %.2f kg/m^3\n', rho_8);
     A_core = (m_core + m_f)/(rho_8 * V8);
     fprintf('A_core:       %.2f m^2\n', A_core);
@@ -102,16 +127,16 @@ end
 
 % bypass
 
-if P.Pt21 > P_tot
+if Pt21 > P_tot
     % bypass nozzle is choked
-    T.T18 = T.Tt21*1/(1+(engine.air.gamma-1)/2);
-    P.P18 = P.Pt21*1/(1-1/engine.N.eta*((engine.air.gamma-1)/(engine.air.gamma+1)))^(-engine.air.gamma/(engine.air.gamma-1));
-    fprintf('T.T18:       %.2f K\n', T.T18);
-    fprintf('P.P18:       %.2f Pa\n', P.P18);
+    T18 = Tt21*1/(1+(engine.air.gamma-1)/2);
+    P18 = Pt21*1/(1-1/engine.N.eta*((engine.air.gamma-1)/(engine.air.gamma+1)))^(-engine.air.gamma/(engine.air.gamma-1));
+    fprintf('T18:       %.2f K\n', T18);
+    fprintf('P18:       %.2f Pa\n', P18);
     
-    V18 = sqrt(engine.air.gamma*engine.flow.R*T.T18);
+    V18 = sqrt(engine.air.gamma*engine.flow.R*T18);
     fprintf('V_18:       %.2f m/s\n', V18);
-    rho_18 = P.P18/(engine.flow.R*T.T18);
+    rho_18 = P.P18/(engine.flow.R*T18);
     fprintf('rho_18:       %.2f kg/m^3\n', rho_18);
     A_bypass = (m_bypass)/(rho_18 * V18);
     fprintf('A_bypass:       %.2f m^2\n', A_bypass);
@@ -120,9 +145,9 @@ end
 
 v_inf = engine.flow.M*sqrt(engine.air.gamma*engine.flow.R*engine.flow.T);
 
-F_core = (m_core + m_f)*(V8-v_inf) + A_core*(P.P8-P.P1);
+F_core = (m_core + m_f)*(V8-v_inf) + A_core*(P8-P_amb);
 
-F_bypass = m_bypass*(V18 - v_inf) + A_bypas*(P.P18-P.P1);
+F_bypass = m_bypass*(V18 - v_inf) + A_bypas*(P18-P_amb);
 
 F_total = F_core + F_bypass;
 
@@ -139,7 +164,7 @@ TSFC = m_f / F_total;
 
 results = struct();
 
-results.T = T;
+results.T = [];
 results.P = P;
 
 end
