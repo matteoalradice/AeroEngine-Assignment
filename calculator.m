@@ -63,20 +63,38 @@ m_4 = m_3 + m_f;
 
 P.Pt4 = P.Pt3 * engine.C.beta;
 T.Tt45 = T.Tt4 - W.W_HPC/(engine.eta*m_4*engine.gas.cp);
-P.Pt45 = P.Pt45 * (1 - 1/engine.LPT.eta*(1-T.Tt5/T.Tt45))^(engine.gas.cp/(engine.gas.cp - 1));
+T.Tt45_id = T.Tt4 - (T.Tt4 - T.Tt45)/engine.HPT.eta;
+P.Pt45 = P.Pt4 * (T.Tt4/T.Tt45_id)^(engine.gas.gamma/(1-engine.gas.gamma));
 
 fprintf('T.Tt45:       %.2f K\n', T.Tt45);
 
 m_45 = m_4;
 
+
 T.Tt5 = T.Tt45 - (W.W_LPC + W.W_F)/(engine.eta * m_45 * engine.gas.cp);
-P.Pt5 = P.Pt45 * (1 - 1/engine.LPT.eta*(1-T.Tt5/T.Tt45))^(engine.gas.cp/(engine.gas.cp - 1));
+fprintf('T.Tt5:       %.2f K\n', T.Tt5);
+T.Tt5_id = T.Tt45 - (T.Tt45 - T.Tt5)/engine.LPT.eta;
+fprintf('T.Tt5_id:       %.2f K\n', T.Tt5_id);
+P.Pt5 = P.Pt45 * (T.Tt45/T.Tt5_id)^(engine.gas.gamma/(1-engine.gas.gamma));
 fprintf('P.Pt5:       %.2f Pa\n', P.Pt5);
 
+P_tot = engine.flow.P * (1 + (engine.gas.gamma - 1)/2)^(engine.gas.gamma/(engine.gas.gamma - 1));
+fprintf('P.P tot:       %.2f Pa\n', P_tot);
 
 P.Pt7 = P.Pt5;
 T.Tt7 = T.Tt5;
 
+if P.Pt7 > P_tot
+    % nozzle is choked
+    T.T8 = T.Tt7*1/(1+(engine.gas.gamma-1)/2);
+    P.P8 = P.Pt7*1/(1-1/engine.N.eta*((engine.gas.gamma-1)/(engine.gas.gamma+1)))^(-engine.gas.gamma/(engine.gas.gamma-1));
+    fprintf('T.T8:       %.2f K\n', T.T8);
+    fprintf('P.P8:       %.2f Pa\n', P.P8);
+    
+    V8 = sqrt(engine.gas.gamma*engine.flow.R*engine.flow.T);
+    rho_8 = P.P8/(engine.flow.R*T.T8);
+else
+end
 
 
 
