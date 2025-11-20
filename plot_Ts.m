@@ -51,7 +51,7 @@ plot(s_vect_re([2,4]),T_vect_re([2,4]),'ok-.','MarkerFaceColor','b','MarkerEdgeC
 plot(s_vect_re(4:end),T_vect_re(4:end),'ok-.','MarkerFaceColor','b','MarkerEdgeColor','b')
 
 % Axis
-xlim([s0 - 200,2 * s0 + 200])
+xlim([s0 - 50,2 * s0 + 200])
 ylim([0,engine.C.Texit + 100])
 xlabel('$\mathbf{s} \ \left[\frac{J}{Kg \cdot K}\right]$','Interpreter','latex')
 ylabel('$\mathbf{T} \ \left[K\right]$','Interpreter','latex')
