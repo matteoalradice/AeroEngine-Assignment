@@ -1,17 +1,18 @@
 clear all
 close all
 clc
-
-engine_case = {'Leap1A'}; %{'JT8D', 'Leap1B', 'Leap1A'}; 
+engine_case = {'JT8D', 'Leap1B'}; %{'JT8D', 'Leap1B', 'Leap1A'}; 
 
 n_engines = length(engine_case);
 for i = 1:n_engines
     % Get engine data
     engine = initial_data(engine_case{i});
-    
+    fprintf('------------------------------------------------------\n'); 
+    fprintf('Engine: \t %s\n\n', engine_case{i}); 
+
     % Calculate results
     results = calculator(engine);
-    
+    fprintf('\n'); 
     % Store results
     if i == 1
         all_res = results;

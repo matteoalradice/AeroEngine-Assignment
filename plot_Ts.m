@@ -50,9 +50,53 @@ plot(s_vect_re(1:3),T_vect_re(1:3),'ok-.','MarkerFaceColor','b','MarkerEdgeColor
 plot(s_vect_re([2,4]),T_vect_re([2,4]),'ok-.','MarkerFaceColor','b','MarkerEdgeColor','b')
 plot(s_vect_re(4:end),T_vect_re(4:end),'ok-.','MarkerFaceColor','b','MarkerEdgeColor','b')
 
+% Labeling
+labels_re = {'1','2','18','21','25','3','4','45','5','8'};   % example for results.T_re (length should match T_vect_re)
+labels_id = {'','','','21*','25*','3*','','45*','5*',''};        % example for results.T_id (use '' to skip)
+
+% compute small offsets in data units
+xl = xlim;
+yl = ylim;
+dx = 0.003 * (xl(2) - xl(1));  % shift right x-range
+dy = 0.015 * (yl(2) - yl(1));  % shift up y-range
+
+% Labels for real points
+n_re = length(s_vect_re);
+for k = 1:n_re
+
+    if k <= numel(labels_re) && ~isempty(labels_re{k}) && ...
+       ~isnan(s_vect_re(k)) && ~isnan(T_vect_re(k))
+        if k <= 3
+            dx_def = (k-2.5)*dx;
+            dy_def = -4*dy;
+        else
+            dx_def = dx;
+            dy_def = dy;
+        end
+        text(s_vect_re(k) + dx_def, T_vect_re(k) + dy_def, labels_re{k}, ...
+             'FontSize',9, 'FontWeight','bold', 'Interpreter','none', ...
+             'HorizontalAlignment','left','VerticalAlignment','bottom');
+    end
+end
+
+% Labels for intermediate (id) points
+dx_id = -0.003 * (xl(2) - xl(1));  % shift left x-range
+n_id = length(s_vect_id);
+for k = 1:n_id
+    if k <= numel(labels_id) && ~isempty(labels_id{k}) && ...
+       ~isnan(s_vect_id(k)) && ~isnan(T_vect_id(k))
+        text(s_vect_id(k) + dx_id, T_vect_id(k) + dy, labels_id{k}, ...
+             'FontSize',9, 'Color','r', 'Interpreter','none', ...
+             'HorizontalAlignment','left','VerticalAlignment','bottom');
+    end
+end
+% --- end labeling ---
+
+
 % Axis
-xlim([s0 - 50,2 * s0 + 200])
-ylim([0,engine.C.Texit + 100])
+xlim([s0 - 50, 2 * s0 + 200])
+ylim([0, engine.C.Texit + 100])
 xlabel('$\mathbf{s} \ \left[\frac{J}{Kg \cdot K}\right]$','Interpreter','latex')
 ylabel('$\mathbf{T} \ \left[K\right]$','Interpreter','latex')
-title(['T-s diagram of ',engine.name])
+title(['T-s diagram of ', engine.name]);
+legend('','','','','','','','','','','','','Ideal','Real','','','Location','northwest');
