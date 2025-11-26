@@ -28,7 +28,7 @@ function engine = initial_data(engineID)
             
             % -- High Pressure Compressor --
             engine.HPC.beta  = 5.5;
-            engine.HPC.eta   = 0.91;
+            engine.HPC.eta   = 0.92;
             
             % -- Combustor --
             engine.C.beta    = 0.96;        % From General Characteristics
