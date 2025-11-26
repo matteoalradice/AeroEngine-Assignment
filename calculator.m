@@ -100,8 +100,9 @@ fprintf(['LPTurbine pressure: \t \t %.2f Pa\n',...
          Pt5,Tt5);
 
 % % % % % % % % % % % % % % % % Gas generator % % % % % % % % % % % % % % %
+
 W_Fcore = m_core * engine.air.cp * (Tt21 - Tt2);
-W23 = ((W_Fcore + W_LPC) / engine.GB.eta + W_HPC) / engine.eta;
+W23 = (W_Fcore / engine.GB.eta + W_LPC + W_HPC) / engine.eta;
 Tg = Tt4 - W23 / (m_core * engine.gas.cp);
 
 Pg = turbine(Pt45,Tt45,Tg,gamma_g,engine.LPT.eta);
