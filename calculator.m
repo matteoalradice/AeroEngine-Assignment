@@ -112,8 +112,7 @@ Tt7 = Tt5;
 if Pt7 > Pt_crit   % Nozzle is choked
     
     T8 = Tt7 / (1 + (gamma_g - 1) / 2);
-    P8 = Pt7 / (1 - 1 / engine.N.eta * ((gamma_g - 1) / (gamma_g + 1)))^...
-        (-gamma_g / (gamma_g - 1));
+    [P8,T8_id] = nozzle(Pt7,Tt7,T8,gamma_g,engine.N.eta);
 
     fprintf(['Core nozzle exit pressure: \t %.2f Pa\n',...
              'Core nozzle exit temperature: \t %.2f K\n\n'],...
@@ -135,8 +134,8 @@ end
 if Pt21 > Pt_crit   % Nozzle is choked
 
     T18 = Tt21 / (1 + (gamma_a - 1) / 2);
-    P18 = Pt21 / (1 - 1 / engine.N.eta * ((gamma_a - 1) / (gamma_a + 1)))^...
-          (-gamma_a / (gamma_a - 1));
+    [P18,T18_id] = nozzle(Pt21,Tt21,T18,gamma_a,engine.N.eta);
+
 
     fprintf(['Bypass nozzle exit pressure: \t %.2f Pa\n',...
              'Bypass nozzle exit temperature:  %.2f K\n\n'],...
@@ -168,10 +167,10 @@ TSFC = m_f / F_total;
 results = struct();
 
 results.P_re = [Pt1,Pt2,P18,Pt21,Pt25,Pt3,Pt4,Pt45,Pt5,P8];
-results.P_id = [NaN,NaN,NaN,Pt21,Pt25,Pt3,NaN,Pt45,Pt5,NaN];
+results.P_id = [NaN,NaN,P18,Pt21,Pt25,Pt3,NaN,Pt45,Pt5,P8];
 
 results.T_re = [Tt1,Tt2,T18,Tt21,Tt25,Tt3,Tt4,Tt45,Tt5,T8];
-results.T_id = [NaN,NaN,NaN,Tt21_id,Tt25_id,Tt3_id,NaN,Tt45_id,Tt5_id,NaN];
+results.T_id = [NaN,NaN,T18_id,Tt21_id,Tt25_id,Tt3_id,NaN,Tt45_id,Tt5_id,T8_id];
 
 results.T    = F_total;
 results.TSFC = TSFC;
