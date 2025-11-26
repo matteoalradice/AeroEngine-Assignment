@@ -62,7 +62,7 @@ function engine = initial_data(engineID)
             engine.gas.LHV   = 43*10^6;
 
         % =================================================================
-        % CASE 3: LEAP-1A
+        % CASE 2: LEAP-1A
         % =================================================================
         case {'leap-1a', 'leap1a'}
             engine.name      = 'LEAP-1A';
