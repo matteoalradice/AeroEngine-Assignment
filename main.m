@@ -1,7 +1,7 @@
 clear all
 close all
 clc
-engine_case = {'JT8D', 'Leap1B'}; %{'JT8D', 'Leap1B', 'Leap1A'}; 
+engine_case = {'GTF'}; %{'JT8D', 'Leap1B', 'Leap1A'}; 
 
 n_engines = length(engine_case);
 for i = 1:n_engines

@@ -94,7 +94,7 @@ end
 
 
 % Axis
-xlim([s0 - 50, 2 * s0 + 200])
+xlim([s0 - 50, 2 * s0 + 300])
 ylim([0, engine.C.Texit + 100])
 xlabel('$\mathbf{s} \ \left[\frac{J}{Kg \cdot K}\right]$','Interpreter','latex')
 ylabel('$\mathbf{T} \ \left[K\right]$','Interpreter','latex')

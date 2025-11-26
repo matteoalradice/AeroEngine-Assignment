@@ -92,7 +92,7 @@ fprintf(['HPTurbine pressure: \t \t %.2f Pa\n',...
 
 % % % % % % % % % % % % % % % LPT stage % % % % % % % % % % % % % % % % % %
 
-Tt5 = Tt45 - (W_LPC + W_F) / (engine.eta * m_hot * engine.gas.cp);
+Tt5 = Tt45 - (W_LPC + W_F / engine.GB.eta) / (engine.eta * m_hot * engine.gas.cp);
 [Pt5,Tt5_id] = turbine(Pt45,Tt45,Tt5,gamma_g,engine.LPT.eta);
 
 fprintf(['LPTurbine pressure: \t \t %.2f Pa\n',...
