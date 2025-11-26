@@ -99,6 +99,17 @@ fprintf(['LPTurbine pressure: \t \t %.2f Pa\n',...
          'LPTurbine temperature: \t \t %.2f K\n\n'],...
          Pt5,Tt5);
 
+% % % % % % % % % % % % % % % % Gas generator % % % % % % % % % % % % % % %
+W_Fcore = m_core * engine.air.cp * (Tt21 - Tt2);
+W23 = ((W_Fcore + W_LPC) / engine.GB.eta + W_HPC) / engine.eta;
+Tg = Tt4 - W23 / (m_core * engine.gas.cp);
+
+Pg = turbine(Pt45,Tt45,Tg,gamma_g,engine.LPT.eta);
+
+T8_ii = Tg * (Pg / P_amb)^((1 - gamma_g) / gamma_g);
+
+Wgg = m_core * engine.gas.cp * (Tg - T8_ii);
+
 % % % % % % % % % % % % % % Nozzle stage % % % % % % % % % % % % % % % % %
 
 % Critical total pressure
@@ -174,4 +185,10 @@ results.T_id = [NaN,NaN,T18_id,Tt21_id,Tt25_id,Tt3_id,NaN,Tt45_id,Tt5_id,T8_id];
 
 results.T    = F_total;
 results.TSFC = TSFC;
+
+% Efficiencies
+% Chemical energy efficiency
+eta_comb = m_core * engine.gas.cp * (Tt4 - Tt3) / (m_f * engine.gas.LHV);
+eta_th   =  Wgg / (m_core * engine.gas.cp * (Tt4 - Tt3));
+
 end
