@@ -8,7 +8,7 @@ function engine = initial_data(engineID)
     switch lower(engineID)
         
         % =================================================================
-        % CASE 1: JT 8D
+        % CASE 1: GTF
         % =================================================================
         case {'gtf'}
             engine.name      = 'GTF';
