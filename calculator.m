@@ -107,6 +107,10 @@ Tg = Tt4 - W23 / (m_core * engine.gas.cp);
 
 Pg = turbine(Pt45,Tt45,Tg,gamma_g,engine.LPT.eta);
 
+fprintf(['Gas generator pressure: \t %.2f Pa\n',...
+         'Gas generator temperature: \t %.2f K\n\n'],...
+         Pg,Tg);
+
 T8_ii = Tg * (Pg / P_amb)^((1 - gamma_g) / gamma_g);
 
 Wgg = m_core * engine.gas.cp * (Tg - T8_ii);
@@ -139,6 +143,8 @@ if Pt7 > Pt_crit   % Nozzle is choked
     % Core nozzle area
     A_core = m_hot / (rho_8 * V8);
     fprintf('Core nozzle area: \t \t %.2f m^2\n', A_core);
+
+    V8_eff = V8 + A_core / m_core * (P8 - P_amb);
 else
 end
 
@@ -162,6 +168,9 @@ if Pt21 > Pt_crit   % Nozzle is choked
     % Bypass nozzle area
     A_bypass = m_bypass / (rho_18 * V18);
     fprintf('Bypass nozzle area: \t \t %.2f m^2\n', A_bypass);
+
+    V18_eff = V18 + A_bypass / m_bypass * (P18 - P_amb);
+
 else
 end
 
@@ -189,7 +198,12 @@ results.TSFC = TSFC;
 
 % Efficiencies
 % Chemical energy efficiency
-eta_comb = m_core * engine.gas.cp * (Tt4 - Tt3) / (m_f * engine.gas.LHV);
-eta_th   =  Wgg / (m_core * engine.gas.cp * (Tt4 - Tt3));
+eta_comb = m_core * engine.gas.cp * (Tt4 - Tt3) / (m_f * engine.gas.LHV)
+eta_thdy =  Wgg / (m_core * engine.gas.cp * (Tt4 - Tt3))
+eta_jet  = 0.5 * (m_core * (V8_eff^2 - v_inf^2) + m_bypass * (V18_eff^2 - v_inf^2)) / Wgg
+eta_prop = (m_core * (V8_eff - v_inf) + m_bypass * (V18_eff - v_inf)) * v_inf / (0.5 * (m_core * (V8_eff^2 - v_inf^2) + m_bypass * (V18_eff^2 - v_inf^2)))
 
+eta_th   = eta_comb * eta_thdy * eta_jet
+
+efficiency = eta_th * eta_prop
 end
