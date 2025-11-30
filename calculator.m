@@ -183,6 +183,10 @@ F_bypass = m_bypass * (V18 - v_inf) + A_bypass * (P18 - P_amb);
 F_total = F_core + F_bypass;
 
 TSFC = m_f / F_total;
+fprintf('Core Thrust (F_core):     %.4f N\n', F_core);
+fprintf('Bypass Thrust (F_bypass): %.4f N\n', F_bypass);
+fprintf('Total Thrust (F_total):   %.4f N\n', F_total);
+fprintf('TSFC:                     %.6f kg/Ns\n', TSFC);
 
 % Output struct
 results = struct();
