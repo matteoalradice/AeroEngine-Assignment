@@ -203,22 +203,22 @@ results.TSFC = TSFC;
 % Efficiencies
 % Chemical energy efficiency
 eta_comb = m_core * engine.gas.cp * (Tt4 - Tt3) / (m_f * engine.gas.LHV);
-fprintf('\nCombustion efficiency: \t \t %.2f %%\n',eta_comb);
+fprintf('\nCombustion efficiency: \t \t %.2f %%\n',eta_comb*100);
 
 eta_thdy = Wgg / (m_core * engine.gas.cp * (Tt4 - Tt3));
-fprintf('Thermodynamic efficiency: \t %.2f %%\n',eta_thdy);
+fprintf('Thermodynamic efficiency: \t %.2f %%\n',eta_thdy*100);
 
 eta_jet  = 0.5 * (m_core * (V8_eff^2 - v_inf^2) + m_bypass * (V18_eff^2 - v_inf^2)) / Wgg;
-fprintf('Jet generation efficiency: \t %.2f %%\n',eta_jet);
+fprintf('Jet generation efficiency: \t %.2f %%\n',eta_jet*100);
 
 eta_prop = (m_core * (V8_eff - v_inf) + m_bypass * (V18_eff - v_inf)) * v_inf / (0.5 * (m_core * (V8_eff^2 - v_inf^2) + m_bypass * (V18_eff^2 - v_inf^2)));
-fprintf('Propulsive efficiency: \t \t %.2f %%\n\n',eta_prop); 
+fprintf('Propulsive efficiency: \t \t %.2f %%\n\n',eta_prop*100); 
 
 eta_th   = eta_comb * eta_thdy * eta_jet;
-fprintf('Thermal efficiency: \t \t %.2f %%\n\n',eta_th); 
+fprintf('Thermal efficiency: \t \t %.2f %%\n\n',eta_th*100); 
 
 efficiency = eta_th * eta_prop;
-fprintf('Total efficiency: \t \t %.2f %%\n',efficiency);
+fprintf('Total efficiency: \t \t %.2f %%\n',efficiency*100);
 
 results.eta = efficiency;
 
