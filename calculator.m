@@ -115,7 +115,7 @@ T8_ii = Tg * (Pg / P_amb)^((1 - gamma_g) / gamma_g);
 
 Wgg = m_core * engine.gas.cp * (Tg - T8_ii);
 
-fprintf('Power required for compression:\t %.2f MW\n\n',m_core * engine.gas.cp * (Tt4 - Tg) / 1e6);
+fprintf('Power required for compression:\t %.2f MW\n\n',W23 / 1e6);
 
 % % % % % % % % % % % % % % Nozzle stage % % % % % % % % % % % % % % % % %
 
