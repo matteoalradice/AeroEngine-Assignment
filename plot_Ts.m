@@ -46,8 +46,9 @@ end
 scatter(s_vect_id,T_vect_id,'r','filled')
 
 % Real thermodynamic transformations
-plot(s_vect_re(1:3),T_vect_re(1:3),'ok-.','MarkerFaceColor','b','MarkerEdgeColor','b')
+plot(s_vect_re(1:2),T_vect_re(1:2),'ok-.','MarkerFaceColor','b','MarkerEdgeColor','b')
 plot(s_vect_re([2,4]),T_vect_re([2,4]),'ok-.','MarkerFaceColor','b','MarkerEdgeColor','b')
+plot(s_vect_re([3,4]),T_vect_re([3,4]),'ok-.','MarkerFaceColor','b','MarkerEdgeColor','b')
 plot(s_vect_re(4:end),T_vect_re(4:end),'ok-.','MarkerFaceColor','b','MarkerEdgeColor','b')
 
 % Labeling

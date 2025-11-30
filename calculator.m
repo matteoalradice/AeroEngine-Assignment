@@ -101,9 +101,9 @@ fprintf(['LPTurbine pressure: \t \t %.2f Pa\n',...
 
 % % % % % % % % % % % % % % % % Gas generator % % % % % % % % % % % % % % %
 
-W_Fcore = m_core * engine.air.cp * (Tt21 - Tt2);
+W_Fcore = m_hot * engine.air.cp * (Tt21 - Tt2);
 W23 = (W_Fcore / engine.GB.eta + W_LPC + W_HPC) / engine.eta;
-Tg = Tt4 - W23 / (m_core * engine.gas.cp);
+Tg = Tt4 - W23 / (m_hot * engine.gas.cp);
 
 Pg = turbine(Pt45,Tt45,Tg,gamma_g,engine.LPT.eta);
 
@@ -113,9 +113,9 @@ fprintf(['Gas generator pressure: \t %.2f Pa\n',...
 
 T8_ii = Tg * (Pg / P_amb)^((1 - gamma_g) / gamma_g);
 
-Wgg = m_core * engine.gas.cp * (Tg - T8_ii);
+Wgg = m_hot * engine.gas.cp * (Tg - T8_ii);
 
-fprintf('Power required for compression:\t %.2f MW\n\n',W23 / 1e6);
+fprintf('Gas Generator Power:\t \t %.2f MW\n\n',W23 / 1e6);
 
 % % % % % % % % % % % % % % Nozzle stage % % % % % % % % % % % % % % % % %
 
@@ -149,9 +149,9 @@ if Pt7 > Pt_crit   % Nozzle is choked
     V8_eff = V8 + A_core / m_core * (P8 - P_amb);
 
     % Overall Power extraction
-    W_av = m_core * engine.gas.cp * (Tt4 - Tt7);
+    W_av = m_hot * engine.gas.cp * (Tt4 - Tt7);
 
-    fprintf('Available power generated: \t %.2f MW\n\n',W_av / 1e6);
+    fprintf('Overall Power Available: \t %.2f MW\n\n',W_av / 1e6);
 
 else
 end
