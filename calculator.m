@@ -147,6 +147,12 @@ if Pt7 > Pt_crit   % Nozzle is choked
     fprintf('Core nozzle area: \t \t %.2f m^2\n', A_core);
 
     V8_eff = V8 + A_core / m_core * (P8 - P_amb);
+
+    % Overall Power extraction
+    W_av = m_core * engine.gas.cp * (Tt4 - Tt7);
+
+    fprintf('Available power generated: \t %.2f MW\n\n',W_av / 1e6);
+
 else
 end
 
