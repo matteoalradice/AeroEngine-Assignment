@@ -103,6 +103,7 @@ fprintf(['LPTurbine pressure: \t \t %.2f Pa\n',...
 
 W_Fcore = m_hot * engine.air.cp * (Tt21 - Tt2);
 W23 = (W_Fcore / engine.GB.eta + W_LPC + W_HPC) / engine.eta;
+W_compression = (W_F / engine.GB.eta + W_LPC + W_HPC) / engine.eta;
 Tg = Tt4 - W23 / (m_hot * engine.gas.cp);
 
 Pg = turbine(Pt45,Tt45,Tg,gamma_g,engine.LPT.eta);
@@ -116,7 +117,7 @@ T8_ii = Tg * (Pg / P_amb)^((1 - gamma_g) / gamma_g);
 Wgg = m_hot * engine.gas.cp * (Tg - T8_ii);
 
 fprintf('Gas Generator Power:\t \t %.2f MW\n\n',W23 / 1e6);
-
+fprintf('Needed Compression Power:\t %.2f MW\n\n',W_compression / 1e6);
 % % % % % % % % % % % % % % Nozzle stage % % % % % % % % % % % % % % % % %
 
 % Critical total pressure
