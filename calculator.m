@@ -212,7 +212,7 @@ eta_jet  = 0.5 * (m_core * (V8_eff^2 - v_inf^2) + m_bypass * (V18_eff^2 - v_inf^
 fprintf('Jet generation efficiency: \t %.2f %%\n',eta_jet);
 
 eta_prop = (m_core * (V8_eff - v_inf) + m_bypass * (V18_eff - v_inf)) * v_inf / (0.5 * (m_core * (V8_eff^2 - v_inf^2) + m_bypass * (V18_eff^2 - v_inf^2)));
-fprintf('Propulsive efficiency: \t \t %.2f %%\n',eta_prop); 
+fprintf('Propulsive efficiency: \t \t %.2f %%\n\n',eta_prop); 
 
 eta_th   = eta_comb * eta_thdy * eta_jet;
 fprintf('Thermal efficiency: \t \t %.2f %%\n\n',eta_th); 
