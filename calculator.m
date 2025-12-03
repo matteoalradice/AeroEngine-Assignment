@@ -101,7 +101,7 @@ fprintf(['LPTurbine pressure: \t \t %.2f Pa\n',...
 
 % % % % % % % % % % % % % % % % Gas generator % % % % % % % % % % % % % % %
 
-W_Fcore = m_hot * engine.air.cp * (Tt21 - Tt2);
+W_Fcore = m_core * engine.air.cp * (Tt21 - Tt2);
 W23 = (W_Fcore / engine.GB.eta + W_LPC + W_HPC) / engine.eta;
 W_compression = (W_F / engine.GB.eta + W_LPC + W_HPC) / engine.eta;
 Tg = Tt4 - W23 / (m_hot * engine.gas.cp);
@@ -147,7 +147,7 @@ if Pt7 > Pt_crit   % Nozzle is choked
     A_core = m_hot / (rho_8 * V8);
     fprintf('Core nozzle area: \t \t %.2f m^2\n', A_core);
 
-    V8_eff = V8 + A_core / m_core * (P8 - P_amb);
+    V8_eff = V8 + A_core / m_hot * (P8 - P_amb);
 
     % Overall Power extraction
     W_av = m_hot * engine.gas.cp * (Tt4 - Tt7);
@@ -217,10 +217,10 @@ fprintf('\nCombustion efficiency: \t \t %.2f %%\n',eta_comb*100);
 eta_thdy = Wgg / (m_core * engine.gas.cp * (Tt4 - Tt3));
 fprintf('Thermodynamic efficiency: \t %.2f %%\n',eta_thdy*100);
 
-eta_jet  = 0.5 * (m_core * (V8_eff^2 - v_inf^2) + m_bypass * (V18_eff^2 - v_inf^2)) / Wgg;
+eta_jet  = 0.5 * (m_hot * (V8_eff^2 - v_inf^2) + m_bypass * (V18_eff^2 - v_inf^2)) / Wgg;
 fprintf('Jet generation efficiency: \t %.2f %%\n',eta_jet*100);
 
-eta_prop = (m_core * (V8_eff - v_inf) + m_bypass * (V18_eff - v_inf)) * v_inf / (0.5 * (m_core * (V8_eff^2 - v_inf^2) + m_bypass * (V18_eff^2 - v_inf^2)));
+eta_prop = (m_hot * (V8_eff - v_inf) + m_bypass * (V18_eff - v_inf)) * v_inf / (0.5 * (m_hot * (V8_eff^2 - v_inf^2) + m_bypass * (V18_eff^2 - v_inf^2)));
 fprintf('Propulsive efficiency: \t \t %.2f %%\n\n',eta_prop*100); 
 
 eta_th   = eta_comb * eta_thdy * eta_jet;
